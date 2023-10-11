@@ -4,11 +4,37 @@
  *****/
 
 #include <stdio.h>
+#include <stdlib.h>
+char** playerGrid(){
+    char **grid = malloc(sizeof(char *) *11);
+    grid[10] = NULL;
+    for (int i = 0; i<10; i++){
+        grid[i] = malloc(sizeof(char) * 11);
+        for (int j = 0; j < 10; j++){
+            grid[i][j] = ' ';
+        }
+        grid[i][10] = '\0';
+    }
+    return grid;
+} 
+
+char** shipStatus(){
+    char** ships = malloc(sizeof(char *) *6);
+    ships[5] = NULL;
+    int shipSizes[] = {2, 3, 3, 4, 5}; //size of ships
+
+    for (int i = 0; i < 5; i++){
+        ships[i] = malloc(sizeof(char) * shipSizes[i]+1);
+        ships[i][shipSizes[i]] = '\0';
+    }
+    return ships;
+}
+
+void placeShips(char** grid){
+
+}
 
 int main() {
-    // Quote from the 1983 film WarGames
-    // Watch the movie for free on Pluto TV
-    // https://pluto.tv/en/on-demand/movies/5e3c8d1a86e96850bcc4a88f
-    printf("A STRANGE GAME.\n");
-    printf("THE ONLY WINNING MOVE IS NOT TO PLAY.\n");
+    printf("Working to main\n");
+    
 }
