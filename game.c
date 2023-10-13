@@ -15,7 +15,7 @@ struct ship{
 
 struct ship* createShips(){
     struct ship* allShips = malloc(5*sizeof(struct ship*));
-
+    
     struct ship *patrolBoat = malloc(sizeof(struct ship));
     allShips[0] = *patrolBoat;
     struct ship *submarine =  malloc(sizeof(struct ship));
@@ -27,6 +27,34 @@ struct ship* createShips(){
     struct ship *carrier =  malloc(sizeof(struct ship));
     allShips[4] = *carrier;
     return allShips;
+}
+
+void fillPlayerGuess(char** grid){
+    char x[1];
+    char y[1];
+    printf("Please enter an X coordinate guess between 0 and 9\n");
+    fgets(x,1,stdin);
+    printf("Please enter a Y coordinate guess between 0 and 9\n");
+    fgets(y,1,stdin);
+
+    int valX = atoi(x);
+    int valY = atoi(y);
+
+    if ((valX<0 || valX>9) || (valY<0 || valY>9)){
+        printf("Please enter an x or y coordinate between 0 and 9\n");
+        //need to get inputs again. While loop until both are 0-9?
+    }
+    if (grid[valX][valY] == 'M' || grid[valX][valY] == 'H'){
+        printf("You have already guessed this coordinate, try another!\n"); 
+    }
+    else if (grid[valX][valY] == 'O' ){
+        grid[valX][valY] = 'H';
+        printf("Guess at (%d,%d) was a hit! Marked with an H (Hit)!\n",valX,valY);
+    }
+    else if (grid[valX][valY] == '_'){
+        grid[valX][valY] = 'M';
+        printf("Guess at (%d,%d) was not a hit. Marked with an M (Miss).\n",valX,valY);
+    }
 }
 
 
