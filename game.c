@@ -39,7 +39,7 @@ void fillShipCoords(struct ship* shipArr, char** grid){
             int y =  0 + rand() % (9 - 0 + 1); 
 
             if (grid[x][y] == ' '){
-                grid[x][y] == 'O';
+                grid[x][y] = 'O';
                 startFilled = 1;
             }          
         }
