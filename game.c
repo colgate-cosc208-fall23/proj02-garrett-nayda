@@ -34,22 +34,19 @@ struct ship* createShips(){
 }
 
 void fillPlayerGuess(char** grid){
-    char x[2];
-    char y[2];
-
-
+    char x[3];
+    char y[3];
     int valX;
     int valY;
 
     printf("Please enter an X coordinate guess between 0 and 9\n");
-    fgets(x,2,stdin);
+    fgets(x, 3, stdin);
     valX = atoi(x);
 
     printf("\nPlease enter a Y coordinate guess between 0 and 9\n");
-    fgets(y,2,stdin);
+    fgets(y, 3, stdin);
     valY = atoi(y);
 
-    printf("X %s, y %s\n", x, y);
     
 
 
@@ -175,6 +172,6 @@ int main() {
     char** grid = playerGrid();
     printGrid(grid);
     fillPlayerGuess(grid);
-
+    printGrid(grid);
 
 }
