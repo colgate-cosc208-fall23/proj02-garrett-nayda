@@ -6,11 +6,15 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+
 struct ship{ 
     int startingX; // must be 0-9
     int startingY; //must be 0-9
     char direction; // u, d, l, or r
     int length; // length of the ship, note that we already have the first coord
+    int hits; 
+    int shipDown; 
+
 };
 
 struct ship* createShips(){
@@ -30,21 +34,32 @@ struct ship* createShips(){
 }
 
 void fillPlayerGuess(char** grid){
-    char x[1];
-    char y[1];
-    printf("Please enter an X coordinate guess between 0 and 9\n");
-    fgets(x,1,stdin);
-    printf("Please enter a Y coordinate guess between 0 and 9\n");
-    fgets(y,1,stdin);
+    char x[2];
+    char y[2];
 
-    int valX = atoi(x);
-    int valY = atoi(y);
+
+    int valX;
+    int valY;
+
+    printf("Please enter an X coordinate guess between 0 and 9\n");
+    fgets(x,2,stdin);
+    valX = atoi(x);
+
+    printf("\nPlease enter a Y coordinate guess between 0 and 9\n");
+    fgets(y,2,stdin);
+    valY = atoi(y);
+
+    printf("X %s, y %s\n", x, y);
+    
+
+
+    
 
     if ((valX<0 || valX>9) || (valY<0 || valY>9)){
         printf("Please enter an x or y coordinate between 0 and 9\n");
         //need to get inputs again. While loop until both are 0-9?
     }
-    if (grid[valX][valY] == 'M' || grid[valX][valY] == 'H'){
+    else if(grid[valX][valY] == 'M' || grid[valX][valY] == 'H'){
         printf("You have already guessed this coordinate, try another!\n"); 
     }
     else if (grid[valX][valY] == 'O' ){
@@ -60,20 +75,64 @@ void fillPlayerGuess(char** grid){
 
 void fillShipCoords(struct ship* shipArr, char** grid){
     for (int i  = 0; i < 5; i++){
-        int startFilled = 0; // checks if the starting coord is filled yet 
+        shipArr[i].hits = 0;
+        shipArr[i].shipDown = 1;
+        int filled = 0; // checks if the starting coord is filled yet 
 
-        while (startFilled == 0){
-            int x = 0 + rand() % (9 - 0 + 1); // maybe this works? chatGPT
+        while (filled== 0){
+            int x = 0 + rand() % (9 - 0 + 1); // chatGPT for this equation 
             int y =  0 + rand() % (9 - 0 + 1); 
-
-            if (grid[x][y] == ' '){
-                grid[x][y] = 'O';
-                startFilled = 1;
+            // create a direction
+            // check if grid is clear 
+            
             }          
         }
-    }
-}
 
+
+    }
+
+
+int checkIfGridClear(char** grid, int x, int y, char dir, int len){
+    int lengthAfterStart = len-1;
+    if (grid[x][y] == '_'){    
+        if (dir == 'l'){
+            for (int i = 1; i <= lengthAfterStart; i++){
+                if (grid[x][y-i] != '_'){
+                    printf("NOT CLEAR IN LEFT DIRECTION");
+                    return 0; 
+                }
+            }
+        }
+        else if (dir == 'r'){
+               for (int i = 1; i <= lengthAfterStart; i++){
+                if (grid[x][y+i] != '_'){
+                    printf("NOT CLEAR IN RIGHT DIRECTION");
+                    return 0; 
+                }
+
+            }
+        }
+        else if(dir == 'u'){
+               for (int i = 1; i <= lengthAfterStart; i++){
+                if (grid[x-i][y] != '_'){
+                    printf("NOT CLEAR IN UP DIRECTION");
+                    return 0; 
+                }
+            }
+        }
+        else if (dir == 'd'){
+               for (int i = 1; i <= lengthAfterStart; i++){
+                if (grid[x+i][y] != '_'){
+                    printf("NOT CLEAR IN DOWN DIRECTION");
+                    return 0; 
+                }
+            }
+        }
+    
+        return 1; 
+    }
+    return 0;
+}
 
 char** playerGrid(){
     char **grid = malloc(sizeof(char *) *11);
@@ -115,5 +174,7 @@ int main() {
     printf("Working to main\n");  
     char** grid = playerGrid();
     printGrid(grid);
+    fillPlayerGuess(grid);
+
 
 }
