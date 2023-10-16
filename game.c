@@ -55,6 +55,7 @@ int gameOver(struct ship* shipArr){
     for (int i = 0; i < 5; i++){
         if (shipArr[i].shipDown == 1){
             downCt++;
+            printf("Down count: %d\n",downCt);
         }
     }
     if (downCt == 5){
@@ -169,53 +170,49 @@ void fillShipCoords(struct ship* shipArr, char** grid){
 }
 
 
-void hitWhichShip(int valX, int valY, struct ship* ships){ 
- //using the starting coords, length, and direction
-    for (int i = 0; i < 5; i++){ // checking each ship
-        if (valX == ships[i].coords.x && (valY = ships[i].coords.y)){ // if it hits the starting coordinates, then automatically done
-            ships[i].hits++; 
+void hitWhichShip(int valX, int valY, struct ship* ships) {
+    for (int i = 0; i < 5; i++) { // checking each ship
+        if (valX == ships[i].coords.x && valY == ships[i].coords.y) { // if it hits the starting coordinates, then automatically done
+            ships[i].hits++;
             shipDown(ships[i]);
             break;
         }
-        else if (ships[i].direction == 'u'){
-            for (int i = 1; i < ships[i].length; i++){
-                if (valY == ships[i].coords.y && valX == (ships[i].coords.x - i)){
+        else if (ships[i].direction == 'u') {
+            for (int j = 1; j < ships[i].length; j++) {
+                if (valY == ships[i].coords.y && valX == (ships[i].coords.x - j)) {
                     ships[i].hits++;
                     shipDown(ships[i]);
                     break;
                 }
             }
         }
-        else if (ships[i].direction == 'd'){
-            for (int i = 1; i < ships[i].length; i++){
-                  if (valY == ships[i].coords.y && valX == (ships[i].coords.x + i)){
+        else if (ships[i].direction == 'd') {
+            for (int j = 1; j < ships[i].length; j++) {
+                if (valY == ships[i].coords.y && valX == (ships[i].coords.x + j)) {
                     ships[i].hits++;
                     shipDown(ships[i]);
                     break;
-                }   
+                }
             }
-
         }
-        else if (ships[i].direction == 'l'){
-            for (int i = 1; i < ships[i].length; i++){
-                  if ( valX == (ships[i].coords.x) && valY == (ships[i].coords.y - i)){
+        else if (ships[i].direction == 'l') {
+            for (int j = 1; j < ships[i].length; j++) {
+                if (valX == ships[i].coords.x && valY == (ships[i].coords.y - j)) {
                     ships[i].hits++;
                     shipDown(ships[i]);
                     break;
-                }          
+                }
             }
         }
-        else if (ships[i].direction == 'd'){
-            for (int i = 1; i < ships[i].length; i++){
-                  if (valX == (ships[i].coords.x) && valY == (ships[i].coords.y + i)){
+        else if (ships[i].direction == 'r') {
+            for (int j = 1; j < ships[i].length; j++) {
+                if (valX == ships[i].coords.x && valY == (ships[i].coords.y + j)) {
                     ships[i].hits++;
                     shipDown(ships[i]);
                     break;
-                }        
+                }
             }
-
         }
-
     }
 }
 
