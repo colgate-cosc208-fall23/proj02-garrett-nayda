@@ -18,13 +18,16 @@ void gameInstructions(){
     printf("WELCOME TO BATTLESHIP. (GAME INSTRUCTIONS).\n");
     printf("COORDINATE GUESSES MUST BE BETWEEN 0-9.\n");
 }
-int gameOver(){
-    return 0;
-}
+
+
 struct coord{
     int x;
     int y;
 };
+
+
+
+
 
 struct ship{ 
     int startingX; // must be 0-9
@@ -33,9 +36,34 @@ struct ship{
     int length; // length of the ship, note that we already have the first coord
     int hits; 
     int shipDown; 
-    struct coord shipCoords[];
+    struct coord coords;
 };
 
+int shipDown(struct ship ship){
+    printf("%d hits, %d length\n", ship.hits, ship.length);
+    if (ship.length == ship.hits){
+        printf("SHIP DOWN.");
+        ship.shipDown = 1;
+        return 1;
+    }
+    return 0;
+}
+
+
+int gameOver(struct ship* shipArr){
+    int downCt = 0;
+    for (int i = 0; i < 5; i++){
+        if (shipArr[i].shipDown == 1){
+            downCt++;
+        }
+    }
+    if (downCt == 5){
+        printf("GAME OVER! YOU WIN");
+        return 1;
+    }
+
+    return 0;
+}
 
 
 struct ship* createShips(){
@@ -65,13 +93,11 @@ struct ship* createShips(){
 }
 
 int checkIfGridClear(char** grid, int x, int y, char dir, int len){
-    printf("direction is %c, length is %d \n", dir, len);
     int lengthAfterStart = len-1;
     if (grid[x][y] == '-'){    
         if (dir == 'l'){
             for (int i = 1; i <= lengthAfterStart; i++){
                 if ((y-i) < 0 || grid[x][y-i] != '-'){
-                    printf("NOT CLEAR IN LEFT DIRECTION");
                     return 0; 
                 }
             }
@@ -82,7 +108,6 @@ int checkIfGridClear(char** grid, int x, int y, char dir, int len){
         else if (dir == 'r'){
                for (int i = 1; i <= lengthAfterStart; i++){
                 if ((y+i)>9 || grid[x][y+i] != '-'){
-                    printf("NOT CLEAR IN RIGHT DIRECTION");
                     return 0; 
                 }
             }
@@ -94,7 +119,6 @@ int checkIfGridClear(char** grid, int x, int y, char dir, int len){
         else if(dir == 'u'){
                for (int i = 1; i <= lengthAfterStart; i++){
                 if ((x-i) < 0 || grid[x-i][y] != '-'){
-                    printf("NOT CLEAR IN UP DIRECTION");
                     return 0; 
                 }
             }
@@ -106,7 +130,6 @@ int checkIfGridClear(char** grid, int x, int y, char dir, int len){
         else if (dir == 'd'){
                for (int i = 1; i <= lengthAfterStart; i++){
                 if ((x+i) > 9 || grid[x+i][y] != '-'){
-                    printf("NOT CLEAR IN DOWN DIRECTION");
                     return 0; 
                 }
             }
@@ -122,48 +145,86 @@ int checkIfGridClear(char** grid, int x, int y, char dir, int len){
 
 void fillShipCoords(struct ship* shipArr, char** grid){
     char directions[] = {'u', 'd', 'l', 'r', '\0'}; //creates an array for the possible directions 
-    srand(time(NULL));
+    srand(time(NULL)); //used CHATGPT for this
 
     for (int i  = 0; i < 5; i++){ //for each ship
         shipArr[i].hits = 0;
-        shipArr[i].shipDown = 1;
-        
+        shipArr[i].shipDown = 0;    
         int filled = 0; // checks if ship has been put on grid yet
-        for (int j = 0; j < shipArr[i].length; j++) {
-            while (filled == 0){
-                int x = rand()%10; 
-                int y =  rand() %10; 
-                char direction = directions[rand()%4]; // random 0-3
 
+        while (filled == 0){
+            int x = rand()%10; 
+            int y =  rand() %10; 
+            char direction = directions[rand()%4]; // random 0-3
 
-                shipArr[i].shipCoords[j].x = x; //comment these out if not working 
-                shipArr[i].shipCoords[j].y = y; //Fills the coords array struct in each ship
-
-                printf("%d x, %d y \n", x, y);
-                
-                if (checkIfGridClear(grid, x, y, direction, shipArr[i].length) == 1){
-                    filled = 1;
-                    printGrid(grid);
-                    printf("SHIP %d done\n", i+1);
-                }
-                else{
-                    printf("trying other coords\n");
-                }
+            shipArr[i].coords.x = x; //comment these out if not working 
+            shipArr[i].coords.y = y; //Fills the coords array struct in each ship
+            shipArr[i].direction = direction;
+          
+            if (checkIfGridClear(grid, x, y, direction, shipArr[i].length) == 1){
+                filled = 1;
             }
-        }          
+        }      
     }
-
-    printf("all ships filled");
 }
 
 
+void hitWhichShip(int valX, int valY, struct ship* ships){ 
+ //using the starting coords, length, and direction
+    for (int i = 0; i < 5; i++){ // checking each ship
+        if (valX == ships[i].coords.x && (valY = ships[i].coords.y)){ // if it hits the starting coordinates, then automatically done
+            ships[i].hits++; 
+            shipDown(ships[i]);
+            break;
+        }
+        else if (ships[i].direction == 'u'){
+            for (int i = 1; i < ships[i].length; i++){
+                if (valY == ships[i].coords.y && valX == (ships[i].coords.x - i)){
+                    ships[i].hits++;
+                    shipDown(ships[i]);
+                    break;
+                }
+            }
+        }
+        else if (ships[i].direction == 'd'){
+            for (int i = 1; i < ships[i].length; i++){
+                  if (valY == ships[i].coords.y && valX == (ships[i].coords.x + i)){
+                    ships[i].hits++;
+                    shipDown(ships[i]);
+                    break;
+                }   
+            }
 
-void fillPlayerGuess(char** grid){
+        }
+        else if (ships[i].direction == 'l'){
+            for (int i = 1; i < ships[i].length; i++){
+                  if ( valX == (ships[i].coords.x) && valY == (ships[i].coords.y - i)){
+                    ships[i].hits++;
+                    shipDown(ships[i]);
+                    break;
+                }          
+            }
+        }
+        else if (ships[i].direction == 'd'){
+            for (int i = 1; i < ships[i].length; i++){
+                  if (valX == (ships[i].coords.x) && valY == (ships[i].coords.y + i)){
+                    ships[i].hits++;
+                    shipDown(ships[i]);
+                    break;
+                }        
+            }
+
+        }
+
+    }
+}
+
+
+void fillPlayerGuess(char** grid, struct ship* ships){
     char x[3];
     char y[3];
     int valX;
     int valY;
-    struct coord *aCoord = malloc(sizeof(struct coord));
 
     printf("X COORD GUESS: ");
     fgets(x, 3, stdin);
@@ -172,26 +233,24 @@ void fillPlayerGuess(char** grid){
     printf("Y COORD GUESS: ");
     fgets(y, 3, stdin);
     valY = atoi(y);
-    //coords[0] = valX;
-    //coords[1] = valY;
 
     if ((valX<0 || valX>9) || (valY<0 || valY>9)){
-        printf("INVALID INPUT: GRID REMAINS UNCHANGED\n");
+        printf("INVALID INPUT: TRY AGAIN\n");
         //need to get inputs again. While loop until both are 0-9?
     }
     else if(grid[valX][valY] == 'M' || grid[valX][valY] == 'H'){
-        printf("COORDINATE ALREADY GUESSED\n"); 
+        printf("COORDINATE ALREADY GUESSED: TRY AGAIN\n"); 
     }
     else if (grid[valX][valY] == 'O' ){
         grid[valX][valY] = 'H';
-        printf("Guess at (%d,%d) was a hit! Marked with an H (Hit)!\n",valX,valY);
+        hitWhichShip(valX, valY, ships);
+        printf("HIT AT (%d,%d)!  Marked with an H (Hit)!\n",valX,valY);
     }
     else if (grid[valX][valY] == '-'){
         grid[valX][valY] = 'M';
         printf("Guess at (%d,%d) was not a hit. Marked with an M (Miss).\n",valX,valY);
     }
 }
-
 
 
 
@@ -218,8 +277,8 @@ void playGame(){
     struct ship* allShips = createShips();
     fillShipCoords(allShips, computerGrid);
 
-    while (gameOver() == 0){
-        fillPlayerGuess(computerGrid);
+    while (gameOver(allShips) == 0){
+        fillPlayerGuess(computerGrid, allShips);
         printGrid(computerGrid);
     }
   
