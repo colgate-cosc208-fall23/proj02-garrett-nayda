@@ -21,6 +21,10 @@ void gameInstructions(){
 int gameOver(){
     return 0;
 }
+struct coord{
+    int x;
+    int y;
+};
 
 struct ship{ 
     int startingX; // must be 0-9
@@ -29,15 +33,17 @@ struct ship{
     int length; // length of the ship, note that we already have the first coord
     int hits; 
     int shipDown; 
-    int coords[][2];
-
+    struct coord shipCoords[];
 };
+
+
 
 struct ship* createShips(){
     struct ship* allShips = malloc(5*sizeof(struct ship*));
     
     struct ship *patrolBoat = malloc(sizeof(struct ship));
     patrolBoat->length = 2;
+    patrolBoat->shipCoords[length];
     allShips[0] = *patrolBoat;
 
     struct ship *submarine =  malloc(sizeof(struct ship));
@@ -122,24 +128,29 @@ void fillShipCoords(struct ship* shipArr, char** grid){
     for (int i  = 0; i < 5; i++){ //for each ship
         shipArr[i].hits = 0;
         shipArr[i].shipDown = 1;
+        
         int filled = 0; // checks if ship has been put on grid yet
+        for (int j = 0; j < shipArr[i].length; j++) {
+            while (filled == 0){
+                int x = rand()%10; 
+                int y =  rand() %10; 
+                char direction = directions[rand()%4]; // random 0-3
 
-        while (filled == 0){
-            int x = rand()%10; 
-            int y =  rand() %10; 
-            char direction = directions[rand()%4]; // random 0-3
 
-            printf("%d x, %d y \n", x, y);
-            
-            if (checkIfGridClear(grid, x, y, direction, shipArr[i].length) == 1){
-                filled = 1;
-                printGrid(grid);
-                printf("SHIP %d done\n", i+1);
+                shipArr[i].shipCoords[j].x = x; //comment these out if not working 
+                shipArr[i].shipCoords[j].y = y; //Fills the coords array struct in each ship
+
+                printf("%d x, %d y \n", x, y);
+                
+                if (checkIfGridClear(grid, x, y, direction, shipArr[i].length) == 1){
+                    filled = 1;
+                    printGrid(grid);
+                    printf("SHIP %d done\n", i+1);
+                }
+                else{
+                    printf("trying other coords\n");
+                }
             }
-            else{
-                printf("trying other coords\n");
-            }
-            
         }          
     }
 
@@ -153,6 +164,7 @@ void fillPlayerGuess(char** grid){
     char y[3];
     int valX;
     int valY;
+    struct coord *aCoord = malloc(sizeof(struct coord));
 
     printf("X COORD GUESS: ");
     fgets(x, 3, stdin);
@@ -161,6 +173,8 @@ void fillPlayerGuess(char** grid){
     printf("Y COORD GUESS: ");
     fgets(y, 3, stdin);
     valY = atoi(y);
+    //coords[0] = valX;
+    //coords[1] = valY;
 
     if ((valX<0 || valX>9) || (valY<0 || valY>9)){
         printf("INVALID INPUT: GRID REMAINS UNCHANGED\n");
