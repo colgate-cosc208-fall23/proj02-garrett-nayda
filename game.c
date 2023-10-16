@@ -43,7 +43,6 @@ struct ship* createShips(){
     
     struct ship *patrolBoat = malloc(sizeof(struct ship));
     patrolBoat->length = 2;
-    patrolBoat->shipCoords[length];
     allShips[0] = *patrolBoat;
 
     struct ship *submarine =  malloc(sizeof(struct ship));
