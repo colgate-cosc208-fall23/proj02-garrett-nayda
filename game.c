@@ -34,9 +34,6 @@ struct coord{
 };
 
 
-
-
-
 struct ship{ 
     int startingX; // must be 0-9
     int startingY; //must be 0-9
@@ -234,7 +231,7 @@ void hitWhichShip(int valX, int valY, struct ship* ships) {
 }
 
 
-void fillPlayerGuess(char** grid, struct ship* ships, char** playerGrid){
+void fillPlayerGuess(char** grid, struct ship* ships, char** playerGrid, int* missCt){
     char x[3];
     char y[3];
     int valX;
@@ -264,6 +261,7 @@ void fillPlayerGuess(char** grid, struct ship* ships, char** playerGrid){
     else if (grid[valX][valY] == '-'){
         grid[valX][valY] = 'M';
         playerGrid[valX][valY] = 'M';
+        *missCt++;
         printf("Guess at (%d,%d) was not a hit. Marked with an M (Miss).\n",valX,valY);
     }
 }
@@ -288,17 +286,18 @@ char** gridMaker(){
 
 
 void playGame(){
-    int guessCt = 0;
     gameInstructions();
+    int* missCt = malloc(sizeof(int*));
+    *missCt = 0;
+
     char** computerGrid = gridMaker();
     char** playerVisibleGrid = gridMaker(); 
-
     struct ship* allShips = createShips();
     fillShipCoords(allShips, computerGrid);
 
     while (gameOver(allShips) == 0){
-        fillPlayerGuess(computerGrid, allShips, playerVisibleGrid);
-        printf("%d\n", guessCt);
+        fillPlayerGuess(computerGrid, allShips, playerVisibleGrid, missCt);
+        printf("MISS CT: %d\n", *missCt);
         printGrid(playerVisibleGrid);
     }
   
