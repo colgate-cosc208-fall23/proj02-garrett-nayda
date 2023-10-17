@@ -22,7 +22,7 @@ void gameInstructions(){
     printf("Each turn, you will be given the chance to guess an x and y coordinate...\n");
     printf("\n");
     printf("If your guess hits a ship, it will be marked with an 'H' for Hit!\n");
-    printf("Likewise, a missed guess will be marked with an 'M for Miss on the grid.\n");
+    printf("Likewise, a missed guess will be marked with an 'M' for Miss on the grid.\n");
 
 
 }
@@ -240,20 +240,20 @@ void fillPlayerGuess(char** grid, struct ship* ships, char** playerGrid){
     int valX;
     int valY;
 
-    printf("x: ");
+    printf("Enter an x coordinate: ");
     fgets(x, 3, stdin);
     valX = atoi(x);
 
-    printf("y: ");
+    printf("Enter a y coordinate: ");
     fgets(y, 3, stdin);
     valY = atoi(y);
 
     if ((valX<0 || valX>9) || (valY<0 || valY>9)){
-        printf("Invalid input! Try again.\n");
+        printf("Invalid input! Make sure you enter a number 0-9.\n");
         //need to get inputs again. While loop until both are 0-9?
     }
     else if(grid[valX][valY] == 'M' || grid[valX][valY] == 'H'){
-        printf("Coordinate already guessed! Try again.\n"); 
+        printf("Coordinate already guessed! Enter a new coordinate.\n"); 
     }
     else if (grid[valX][valY] == 'O' ){
         grid[valX][valY] = 'H';
