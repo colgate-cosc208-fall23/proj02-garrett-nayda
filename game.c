@@ -15,8 +15,16 @@ void printGrid(char **grid){
 }
 
 void gameInstructions(){
-    printf("WELCOME TO BATTLESHIP. (GAME INSTRUCTIONS).\n");
-    printf("COORDINATE GUESSES MUST BE BETWEEN 0-9.\n");
+    printf("Welcome to Battleship...\n");
+    printf("\n");
+    printf("Player Instructions: \n");
+    printf("Your goal is to sink all 5 ships!\n");
+    printf("Each turn, you will be given the chance to guess an x and y coordinate...\n");
+    printf("\n");
+    printf("If your guess hits a ship, it will be marked with an 'H' for Hit!\n");
+    printf("Likewise, a missed guess will be marked with an 'M for Miss on the grid.\n");
+
+
 }
 
 
@@ -39,11 +47,20 @@ struct ship{
     struct coord coords;
 };
 
-int shipDown(struct ship ship){
-    printf("%d hits, %d length\n", ship.hits, ship.length);
-    if (ship.length == ship.hits){
-        printf("SHIP DOWN.");
-        ship.shipDown = 1;
+int shipsLeft(struct ship* shipArr){
+     int downCt = 0;
+    for (int i = 0; i < 5; i++){
+        if (shipArr[i].shipDown == 1){
+            downCt++;
+        }  
+    }
+    return 5-downCt;  
+}
+
+int shipDown(struct ship* ship, struct ship* shipArr){
+    if (ship->length == ship->hits){
+        ship->shipDown = 1;
+        printf("Ship Sunk! %d ships remaining.\n", shipsLeft(shipArr));
         return 1;
     }
     return 0;
@@ -55,16 +72,16 @@ int gameOver(struct ship* shipArr){
     for (int i = 0; i < 5; i++){
         if (shipArr[i].shipDown == 1){
             downCt++;
-            printf("Down count: %d\n",downCt);
-        }
+        }  
     }
     if (downCt == 5){
-        printf("GAME OVER! YOU WIN");
+        printf("You win! You have successfully sunk all 5 ships!");
         return 1;
     }
-
     return 0;
 }
+
+
 
 
 struct ship* createShips(){
@@ -174,14 +191,14 @@ void hitWhichShip(int valX, int valY, struct ship* ships) {
     for (int i = 0; i < 5; i++) { // checking each ship
         if (valX == ships[i].coords.x && valY == ships[i].coords.y) { // if it hits the starting coordinates, then automatically done
             ships[i].hits++;
-            shipDown(ships[i]);
+            shipDown(&ships[i],ships);
             break;
         }
         else if (ships[i].direction == 'u') {
             for (int j = 1; j < ships[i].length; j++) {
                 if (valY == ships[i].coords.y && valX == (ships[i].coords.x - j)) {
                     ships[i].hits++;
-                    shipDown(ships[i]);
+                    shipDown(&ships[i], ships);
                     break;
                 }
             }
@@ -190,7 +207,7 @@ void hitWhichShip(int valX, int valY, struct ship* ships) {
             for (int j = 1; j < ships[i].length; j++) {
                 if (valY == ships[i].coords.y && valX == (ships[i].coords.x + j)) {
                     ships[i].hits++;
-                    shipDown(ships[i]);
+                    shipDown(&ships[i],ships);
                     break;
                 }
             }
@@ -199,7 +216,7 @@ void hitWhichShip(int valX, int valY, struct ship* ships) {
             for (int j = 1; j < ships[i].length; j++) {
                 if (valX == ships[i].coords.x && valY == (ships[i].coords.y - j)) {
                     ships[i].hits++;
-                    shipDown(ships[i]);
+                    shipDown(&ships[i], ships);
                     break;
                 }
             }
@@ -208,7 +225,7 @@ void hitWhichShip(int valX, int valY, struct ship* ships) {
             for (int j = 1; j < ships[i].length; j++) {
                 if (valX == ships[i].coords.x && valY == (ships[i].coords.y + j)) {
                     ships[i].hits++;
-                    shipDown(ships[i]);
+                    shipDown(&ships[i], ships);
                     break;
                 }
             }
@@ -217,34 +234,36 @@ void hitWhichShip(int valX, int valY, struct ship* ships) {
 }
 
 
-void fillPlayerGuess(char** grid, struct ship* ships){
+void fillPlayerGuess(char** grid, struct ship* ships, char** playerGrid){
     char x[3];
     char y[3];
     int valX;
     int valY;
 
-    printf("X COORD GUESS: ");
+    printf("x: ");
     fgets(x, 3, stdin);
     valX = atoi(x);
 
-    printf("Y COORD GUESS: ");
+    printf("y: ");
     fgets(y, 3, stdin);
     valY = atoi(y);
 
     if ((valX<0 || valX>9) || (valY<0 || valY>9)){
-        printf("INVALID INPUT: TRY AGAIN\n");
+        printf("Invalid input! Try again.\n");
         //need to get inputs again. While loop until both are 0-9?
     }
     else if(grid[valX][valY] == 'M' || grid[valX][valY] == 'H'){
-        printf("COORDINATE ALREADY GUESSED: TRY AGAIN\n"); 
+        printf("Coordinate already guessed! Try again.\n"); 
     }
     else if (grid[valX][valY] == 'O' ){
         grid[valX][valY] = 'H';
+        playerGrid[valX][valY] = 'H';
         hitWhichShip(valX, valY, ships);
-        printf("HIT AT (%d,%d)!  Marked with an H (Hit)!\n",valX,valY);
+        printf("Hit at (%d,%d)!  Marked with an H (Hit)!\n",valX,valY);
     }
     else if (grid[valX][valY] == '-'){
         grid[valX][valY] = 'M';
+        playerGrid[valX][valY] = 'M';
         printf("Guess at (%d,%d) was not a hit. Marked with an M (Miss).\n",valX,valY);
     }
 }
@@ -271,12 +290,14 @@ char** gridMaker(){
 void playGame(){
     gameInstructions();
     char** computerGrid = gridMaker();
+    char** playerVisibleGrid = gridMaker(); 
+
     struct ship* allShips = createShips();
     fillShipCoords(allShips, computerGrid);
 
     while (gameOver(allShips) == 0){
-        fillPlayerGuess(computerGrid, allShips);
-        printGrid(computerGrid);
+        fillPlayerGuess(computerGrid, allShips, playerVisibleGrid);
+        printGrid(playerVisibleGrid);
     }
   
 
