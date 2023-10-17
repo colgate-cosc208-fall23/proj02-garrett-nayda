@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h> 
+#include <string.h>
 
 
 void printGrid(char **grid){
@@ -44,6 +45,7 @@ struct ship{
     int length; // length of the ship, note that we already have the first coord
     int hits; 
     int shipDown; 
+    char name[15];
     struct coord coords;
 };
 
@@ -60,7 +62,7 @@ int shipsLeft(struct ship* shipArr){
 int shipDown(struct ship* ship, struct ship* shipArr){
     if (ship->length == ship->hits){
         ship->shipDown = 1;
-        printf("Ship Sunk! %d ships remaining.\n", shipsLeft(shipArr));
+        printf("You sunk the %s! %d ships remaining.\n",ship->name ,shipsLeft(shipArr));
         return 1;
     }
     return 0;
@@ -89,22 +91,27 @@ struct ship* createShips(){
     
     struct ship *patrolBoat = malloc(sizeof(struct ship));
     patrolBoat->length = 2;
+    strcpy(patrolBoat->name,"Patrol Boat");
     allShips[0] = *patrolBoat;
 
     struct ship *submarine =  malloc(sizeof(struct ship));
     submarine->length = 3;
+    strcpy(submarine->name,"Submarine");
     allShips[1] = *submarine;
 
     struct ship *destroyer =  malloc(sizeof(struct ship));
     destroyer->length = 3;
+    strcpy(destroyer->name,"Destroyer");
     allShips[2] = *destroyer;
 
     struct ship *battleship =  malloc(sizeof(struct ship));
     battleship->length = 4;
+    strcpy(battleship->name,"Battleship");
     allShips[3] = *battleship;
 
     struct ship *carrier =  malloc(sizeof(struct ship));
     carrier->length = 5;
+    strcpy(carrier->name,"Carrier");
     allShips[4] = *carrier;
 
     return allShips;
