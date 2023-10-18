@@ -246,6 +246,7 @@ void fillPlayerGuess(char** grid, struct ship* ships, char** playerGrid){
     char y[3];
     int valX;
     int valY;
+    int testInt;
 
     printf("Enter an x coordinate: ");
     fgets(x, 3, stdin);
