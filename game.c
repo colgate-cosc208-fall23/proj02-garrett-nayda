@@ -6,11 +6,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h> 
+#include <string.h>
 
 
 void printGrid(char **grid){
+    printf(" 0123456789\n");
     for (int i = 0; i < 10; i++){
-        printf("%s\n", grid[i]);
+        printf("%d%s\n",i,grid[i]);
     }
 }
 
@@ -22,7 +24,7 @@ void gameInstructions(){
     printf("Each turn, you will be given the chance to guess an x and y coordinate...\n");
     printf("\n");
     printf("If your guess hits a ship, it will be marked with an 'H' for Hit!\n");
-    printf("Likewise, a missed guess will be marked with an 'M for Miss on the grid.\n");
+    printf("Likewise, a missed guess will be marked with an 'M' for Miss on the grid.\n");
 
 
 }
@@ -34,6 +36,9 @@ struct coord{
 };
 
 
+
+
+
 struct ship{ 
     int startingX; // must be 0-9
     int startingY; //must be 0-9
@@ -41,6 +46,7 @@ struct ship{
     int length; // length of the ship, note that we already have the first coord
     int hits; 
     int shipDown; 
+    char name[15];
     struct coord coords;
 };
 
@@ -57,7 +63,7 @@ int shipsLeft(struct ship* shipArr){
 int shipDown(struct ship* ship, struct ship* shipArr){
     if (ship->length == ship->hits){
         ship->shipDown = 1;
-        printf("Ship Sunk! %d ships remaining.\n", shipsLeft(shipArr));
+        printf("You sunk the %s! %d ships remaining.\n",ship->name ,shipsLeft(shipArr));
         return 1;
     }
     return 0;
@@ -86,22 +92,27 @@ struct ship* createShips(){
     
     struct ship *patrolBoat = malloc(sizeof(struct ship));
     patrolBoat->length = 2;
+    strcpy(patrolBoat->name,"Patrol Boat");
     allShips[0] = *patrolBoat;
 
     struct ship *submarine =  malloc(sizeof(struct ship));
     submarine->length = 3;
+    strcpy(submarine->name,"Submarine");
     allShips[1] = *submarine;
 
     struct ship *destroyer =  malloc(sizeof(struct ship));
     destroyer->length = 3;
+    strcpy(destroyer->name,"Destroyer");
     allShips[2] = *destroyer;
 
     struct ship *battleship =  malloc(sizeof(struct ship));
     battleship->length = 4;
+    strcpy(battleship->name,"Battleship");
     allShips[3] = *battleship;
 
     struct ship *carrier =  malloc(sizeof(struct ship));
     carrier->length = 5;
+    strcpy(carrier->name,"Carrier");
     allShips[4] = *carrier;
 
     return allShips;
@@ -231,40 +242,40 @@ void hitWhichShip(int valX, int valY, struct ship* ships) {
 }
 
 
-void fillPlayerGuess(char** grid, struct ship* ships, char** playerGrid, int* missCt){
+void fillPlayerGuess(char** grid, struct ship* ships, char** playerGrid, int* misses) {
     char x[3];
     char y[3];
     int valX;
     int valY;
 
-    printf("x: ");
+    printf("Enter a row number (0-9): ");
     fgets(x, 3, stdin);
     valX = atoi(x);
 
-    printf("y: ");
+    printf("Enter a column number (0-9): ");
     fgets(y, 3, stdin);
     valY = atoi(y);
 
-    if ((valX<0 || valX>9) || (valY<0 || valY>9)){
-        printf("Invalid input! Try again.\n");
-        //need to get inputs again. While loop until both are 0-9?
-    }
-    else if(grid[valX][valY] == 'M' || grid[valX][valY] == 'H'){
-        printf("Coordinate already guessed! Try again.\n"); 
-    }
-    else if (grid[valX][valY] == 'O' ){
+    if ((valX < 0 || valX > 9) || (valY < 0 || valY > 9)) {
+        printf("Invalid input! Make sure you enter a number 0-9.\n");
+        // need to get inputs again. While loop until both are 0-9?
+    } else if (grid[valX][valY] == 'M' || grid[valX][valY] == 'H') {
+        printf("Point already guessed! Enter a new point.\n");
+    } else if (grid[valX][valY] == 'O') {
         grid[valX][valY] = 'H';
         playerGrid[valX][valY] = 'H';
         hitWhichShip(valX, valY, ships);
-        printf("Hit at (%d,%d)!  Marked with an H (Hit)!\n",valX,valY);
-    }
-    else if (grid[valX][valY] == '-'){
+        printf("Hit at (%d,%d)!  Marked with an H (Hit)!\n", valX, valY);
+    } else if (grid[valX][valY] == '-') {
         grid[valX][valY] = 'M';
         playerGrid[valX][valY] = 'M';
-        *missCt++;
-        printf("Guess at (%d,%d) was not a hit. Marked with an M (Miss).\n",valX,valY);
+        printf("Guess at row %d, column %d was not a hit. Marked with an M (Miss).\n", valX, valY);
+        (*misses)++; 
+        printf("You have missed %d attempt(s) so far. Remember, at 15 you lose!\n",*misses);
     }
 }
+
+
 
 
 
@@ -285,23 +296,25 @@ char** gridMaker(){
 
 
 
-void playGame(){
+void playGame() {
     gameInstructions();
-    int* missCt = malloc(sizeof(int*));
-    *missCt = 0;
-
     char** computerGrid = gridMaker();
-    char** playerVisibleGrid = gridMaker(); 
+    char** playerVisibleGrid = gridMaker();
+
     struct ship* allShips = createShips();
     fillShipCoords(allShips, computerGrid);
 
-    while (gameOver(allShips) == 0){
-        fillPlayerGuess(computerGrid, allShips, playerVisibleGrid, missCt);
-        printf("MISS CT: %d\n", *missCt);
-        printGrid(playerVisibleGrid);
-    }
-  
+    int misses = 0; // Track the number of misses
 
+    while (gameOver(allShips) == 0) {
+        fillPlayerGuess(computerGrid, allShips, playerVisibleGrid, &misses);
+        printGrid(playerVisibleGrid);
+
+        if (misses >= 18) {
+            printf("Game over! You have reached 15 misses. You lose.\n");
+            break;
+        }
+    }
 }
 
 int main() { 
