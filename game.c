@@ -298,6 +298,7 @@ void playGame(){
     gameInstructions();
     char** computerGrid = gridMaker();
     char** playerVisibleGrid = gridMaker(); 
+    int testint;
 
     struct ship* allShips = createShips();
     fillShipCoords(allShips, computerGrid);
