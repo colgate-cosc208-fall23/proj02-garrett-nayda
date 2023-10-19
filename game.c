@@ -67,7 +67,7 @@ int shipsLeft(struct ship *shipArr) {
 int shipDown(struct ship *ship, struct ship *shipArr) {
     if (ship->length == ship->hits) {
         ship->shipDown = 1;
-        printf("\nYou sunk the %s! %d ships remaining.\n", ship->name, shipsLeft(shipArr));
+        printf("You sunk the %s! %d ships remaining.\n", ship->name, shipsLeft(shipArr));
         return 1;
     }
     return 0;
@@ -243,17 +243,17 @@ void fillPlayerGuess(char **grid, struct ship *ships, char **playerGrid, int *mi
         printf("Invalid input! Make sure you enter a number 0-9.\n");
         // need to get inputs again. While loop until both are 0-9?
     } else if (grid[valX][valY] == 'M' || grid[valX][valY] == 'H') {
-        printf("Point already guessed! Enter a new point.\n");
+        printf("\nPoint already guessed! Enter a new point.\n");
     } else if (grid[valX][valY] == 'O') {
         grid[valX][valY] = 'H';
         playerGrid[valX][valY] = 'H';
-        hitWhichShip(valX, valY, ships);
         printf("\nHit at (%d,%d)!  Marked with an H (Hit)!\n\n", valX, valY);
+        hitWhichShip(valX, valY, ships);
         printf("\nYou have %d ships left to sink.\n\n",shipsLeft(shipArr));
     } else if (grid[valX][valY] == '-') {
         grid[valX][valY] = 'M';
         playerGrid[valX][valY] = 'M';
-        printf("Guess at row %d, column %d was not a hit. Marked with an M (Miss).\n\n", valX, valY);
+        printf("\nGuess at row %d, column %d was not a hit. Marked with an M (Miss).\n", valX, valY);
         (*misses)++;
         printf("\nYou have missed %d attempt(s) so far. Remember, at 30 you lose!\n", *misses);
         printf("\nYou have %d ships left to sink.\n\n",shipsLeft(shipArr));
