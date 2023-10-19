@@ -19,6 +19,7 @@ void gameInstructions() {
     printf("Welcome to Battleship!\n");
     printf("\n");
     printf("Player Instructions: \n");
+    printf("5 ships will be randomly spawned and be invisible to you - there is 1 length 2 ship, 2 length 3 ships, 1 length 4 ship, and 1 length 5 ship.\n");
     printf("Your goal is to sink all 5 ships!\n");
     printf("Each turn, you will be given the chance to guess an x and y coordinate...\n");
     printf("\n");
