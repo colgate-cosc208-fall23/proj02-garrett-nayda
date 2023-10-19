@@ -24,7 +24,7 @@ void gameInstructions() {
     printf("\n");
     printf("If your guess hits a ship, it will be marked with an 'H' for Hit!\n");
     printf("Likewise, a missed guess will be marked with an 'M' for Miss on the grid.\n");
-    printf("At 30 misses (trust us, it's the perfect number), you lose.\n\n");
+    printf("At 35 misses (trust us, it's the perfect number), you lose.\n\n");
 }
 
 struct coord {
@@ -255,7 +255,7 @@ void fillPlayerGuess(char **grid, struct ship *ships, char **playerGrid, int *mi
         playerGrid[valX][valY] = 'M';
         printf("\nGuess at row %d, column %d was not a hit. Marked with an M (Miss).\n", valX, valY);
         (*misses)++;
-        printf("\nYou have missed %d attempt(s) so far. Remember, at 30 you lose!\n", *misses);
+        printf("\nYou have missed %d attempt(s) so far. Remember, at 35 you lose!\n", *misses);
         printf("\nYou have %d ships left to sink.\n\n",shipsLeft(shipArr));
         
     }
@@ -287,8 +287,8 @@ void playGame() {
         fillPlayerGuess(computerGrid, allShips, playerVisibleGrid, &misses,allShips);
         printGrid(playerVisibleGrid);
 
-        if (misses >= 30) {
-            printf("Game over! You have reached 30 misses. You lose.\n");
+        if (misses >= 35) {
+            printf("Game over! You have reached 35 misses. You lose.\n");
             break;
         }
     }
