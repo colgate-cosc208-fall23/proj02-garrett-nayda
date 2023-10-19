@@ -17,7 +17,7 @@ void printGrid(char **grid){
 }
 
 void gameInstructions(){
-    printf("Welcome to Battleship...\n");
+    printf("Welcome to Battleship!\n");
     printf("\n");
     printf("Player Instructions: \n");
     printf("Your goal is to sink all 5 ships!\n");
@@ -78,7 +78,7 @@ int gameOver(struct ship* shipArr){
         }  
     }
     if (downCt == 5){
-        printf("You win! You have successfully sunk all 5 ships!");
+        printf("You win! You have successfully sunk all 5 ships!\n  ");
         return 1;
     }
     return 0;
