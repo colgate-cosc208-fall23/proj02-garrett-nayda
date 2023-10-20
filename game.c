@@ -7,6 +7,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include <string.h>
+#include <ctype.h>
 
 void printGrid(char **grid) {
     printf(" 0123456789\n");
@@ -239,7 +240,7 @@ void fillPlayerGuess(char **grid, struct ship *ships, char **playerGrid, int *mi
     fgets(y, 3, stdin);
     valY = atoi(y);
 
-    if ((valX < 0 || valX > 9) || (valY < 0 || valY > 9)) {
+    if ((isdigit(x[0]) == 0 || isdigit(y[0]) == 0) || (valX < 0 || valX > 9) || (valY < 0 || valY > 9)) {
         printf("Invalid input! Make sure you enter a number 0-9.\n");
         // need to get inputs again. While loop until both are 0-9?
     } else if (grid[valX][valY] == 'M' || grid[valX][valY] == 'H') {
