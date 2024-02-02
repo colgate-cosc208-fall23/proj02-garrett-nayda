@@ -9,6 +9,8 @@
 #include <string.h>
 #include <ctype.h>
 
+#define PRACTICE_MODE 1
+
 struct coord { // struct that represents coordinate on the grid
     int x;
     int y;
@@ -36,12 +38,14 @@ void practice_mode_instructions(){
 
 void easy_AI_instructions(){
     printf("easy AI player instructions: \n\n");
+    printf("empty rn\n");
 }
 
 void hard_AI_instructions(){
     printf("hard AI player instructions: \n\n");
+    printf("empty rn\n");
 }
-void game_instructions() { // prints game instructions 
+int game_instructions() { // prints game instructions 
     printf("\nwelcome to Battleship! (press CTRL C to quit) \n\n");
     printf("select game mode (press enter/return to continue) \n");
     printf("   * practice mode: press 1\n");
@@ -59,10 +63,13 @@ void game_instructions() { // prints game instructions
     printf("\n");
     if (game_choice == '1'){
         practice_mode_instructions();
+        return 1;
     } else if (game_choice == '2'){
         easy_AI_instructions();
+        return 2;
     } else if (game_choice == '3'){
         hard_AI_instructions();
+        return 3;
     }
     
     
@@ -109,7 +116,7 @@ int shipDown(struct ship *ship, struct ship *shipArr) {
     return 0;
 }
 
-int gameOver(struct ship *shipArr) {
+int game_over(struct ship *shipArr) {
     int downCt = 0;
     for (int i = 0; i < 5; i++) {
         if (shipArr[i].shipDown == 1) {
@@ -291,13 +298,14 @@ void fill_player_guess(char **grid, struct ship *ships, char **playerGrid, int *
         playerGrid[valX][valY] = 'M';
         printf("\nguess at row %d, column %d was not a hit. marked with an M (Miss).\n", valX, valY);
         (*misses)++;
-        printf("\nyou have missed %d attempt(s) so far. you have %d misses remaining. \n", *misses, guess_limit);
+        (*guess_limit)--;
+        printf("\nyou have missed %d attempt(s) so far. you have %d misses remaining. \n", *misses, *guess_limit);
         printf("\nyou have %d ships left to sink.\n\n",shipsLeft(shipArr));
         
     }
 }
 
-char **grid_maker() { //mallocs and creates a 10x10 grid for graphics and data collection 
+char **grid_maker() { //mallocs and fills a 10x10 grid for graphics and data collection 
     char **grid = malloc(sizeof(char *) * 10); //malloc space for a 10 x 10 2D array
 
     for (int i = 0; i < 10; i++) { 
@@ -315,31 +323,34 @@ char **grid_maker() { //mallocs and creates a 10x10 grid for graphics and data c
 
 
 void play_game() { //highest level function: runs the entirety of the game
-    game_instructions();
+    int mode = game_instructions();
+    printf("%d\n", mode);
 
-    printf("press return to continue: ");
-    int c;
+    printf("press return to continue "); //works but look into this more 
+    int c; 
     while ((c = getchar()) != '\n' && c != EOF);
+    getchar();
 
-    int guess_limit; //practice mode guess limit - user gets to choose how many tries they'd like to get 
-    printf("enter a guess limit: ");
-    scanf("%d", &guess_limit);
+    if (mode == PRACTICE_MODE){
+        int misses = 0; // tracks the number of misses  
 
-    char **computer_grid = grid_maker();
-    char **player_visible_grid = grid_maker();
+        int guess_limit; //practice mode guess limit - user gets to choose how many tries they'd like to get 
+        printf("\nenter a guess limit: ");
+        scanf("%d", &guess_limit);
 
-    struct ship *all_ships = create_ships();
-    fill_ship_coords(all_ships, computer_grid);
+        char **computer_grid = grid_maker(); // two grids - one tracks the data and another displays hits to the users 
+        char **player_visible_grid = grid_maker();
 
-    int misses = 0; // Track the number of misses
+        struct ship *all_ships = create_ships();
+        fill_ship_coords(all_ships, computer_grid);
 
-    while (gameOver(all_ships) == 0) {
-        fill_player_guess(computer_grid, all_ships, player_visible_grid, &misses,all_ships, &guess_limit);
-        print_grid(player_visible_grid);
+        while (game_over(all_ships) == 0) {
+            fill_player_guess(computer_grid, all_ships, player_visible_grid, &misses, all_ships, &guess_limit);
+            print_grid(player_visible_grid);
 
-        if (misses >= guess_limit) {
-            printf("game over! you lose.\n");
-            break;
+            if (misses >= guess_limit) {
+                printf("game over! you lose.\n");
+                break;
         }
     }
 
@@ -348,6 +359,8 @@ void play_game() { //highest level function: runs the entirety of the game
     free_grid(player_visible_grid); //frees all malloced space 
     free_grid(computer_grid);
     free_ships(all_ships);
+    }
+   
 }
 
 
