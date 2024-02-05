@@ -11,6 +11,7 @@
 
 #define PRACTICE_MODE 1
 #define AI_MODE 2
+#define ALL_SHIPS 5
 
 struct coord { // struct that represents coordinate on the grid
     int x;
@@ -23,7 +24,7 @@ struct ship { //struct with all ship information
     char direction; // u, d, l, or r
     int length; // length of the ship, note that we already have the first coord
     int hits;
-    int shipDown;
+    int ship_sunk;
     char name[15];
     struct coord coords;
 };
@@ -94,7 +95,7 @@ int ships_left(struct ship *ship_arr) {
     //given an array of ships, ship_left returns an int corresponding to the number of ships that have not been sunk. 
     int downCt = 0;
     for (int i = 0; i < 5; i++) {
-        if (ship_arr[i].shipDown == 1) {
+        if (ship_arr[i].ship_sunk == 1) {
             downCt++;
         }
     }
@@ -103,7 +104,7 @@ int ships_left(struct ship *ship_arr) {
 
 int ship_down(struct ship *ship, struct ship *ship_arr) {
     if (ship->length == ship->hits) {
-        ship->shipDown = 1;
+        ship->ship_sunk= 1;
         printf("You sunk the %s! %d ships remaining.\n", ship->name, ships_left(ship_arr));
         return 1;
     }
@@ -112,7 +113,7 @@ int ship_down(struct ship *ship, struct ship *ship_arr) {
 
 int all_ships_down(struct ship *ship_arr) {
     for (int i = 0; i < 5; i++) {
-        if (ship_arr[i].shipDown == 0) {
+        if (ship_arr[i].ship_sunk == 0) {
             return 0; //false 
         }
     }
@@ -148,6 +149,7 @@ struct ship *create_ships() { //creates an array of all 5 ships
 
 int check_if_grid_clear(char **grid, int row, int col, char dir, int len) {
     int lengthAfterStart = len - 1;
+
     if (grid[row][col] == '-') {
         if (dir == 'l') {
             for (int i = 1; i <= lengthAfterStart; i++) {
@@ -185,19 +187,22 @@ int check_if_grid_clear(char **grid, int row, int col, char dir, int len) {
             for (int i = 0; i < len; i++) {
                 grid[row + i][col] = 'O';
             }
+        } else {
+            return 0; // if an invalid direction was given 
         }
+
         return 1;
     }
     return 0;
 }
 
-void fill_ship_coords(struct ship *ship_arr, char **grid) {
+void random_ship_placement(struct ship *ship_arr, char **grid) {
     char directions[] = { 'u', 'd', 'l', 'r', '\0' }; // creates an array for the possible directions
     srand(time(NULL)); // seed the random number generator
 
     for (int i = 0; i < 5; i++) { // for each ship
         ship_arr[i].hits = 0;
-        ship_arr[i].shipDown = 0; // false --> ship is not down
+        ship_arr[i].ship_sunk = 0; // false --> ship is not down
         int filled = 0; // checks for potential collisions 
 
         while (filled == 0) {
@@ -214,6 +219,62 @@ void fill_ship_coords(struct ship *ship_arr, char **grid) {
             }
         }
     }
+}
+
+void player_ship_placement(struct ship* ship_arr, char **grid){
+    printf("places player ships\n");
+
+    for (int i = 0; i < ALL_SHIPS;  i++){
+        int row; //establish all necessary variables 
+        int col;
+        char direction;
+        int len = ship_arr[i].length;
+        int done = 0;
+
+        ship_arr[i].hits = 0;
+        ship_arr[i].ship_sunk = 0; 
+
+    printf("\nFilling %s (length %d): \n", ship_arr[i].name, len);
+        while (done == 0) {
+            printf("Enter a starting row number (0-9): "); // now get user input on the starting row, column, and direction
+            scanf("%d", &row);
+
+            printf("Enter a starting col number (0-9): ");
+            scanf("%d", &col);
+            getchar();
+
+            printf("Enter a direction -> 'u' (up), 'd' (down), 'l' (left), or 'r' (right): ");
+            scanf("%c", &direction);
+        
+
+            ship_arr[i].coords.x = row; 
+            ship_arr[i].coords.y = col;
+            ship_arr[i].direction = direction;
+
+            if (check_if_grid_clear(grid, row, col, direction, len) == 1) {
+                done = 1;
+                printf("%s successfully placed.\n", ship_arr[i].name);
+                printf("\nPlayer grid: \n");
+                print_grid(grid);
+            } else {
+                printf("Invalid input/ship collision. Try again. \n\n");
+            }
+            
+        }
+
+
+
+    }
+
+    // int check_if_grid_clear(char **grid, int row, int col, char dir, int len) {
+
+    // choose a direction
+
+    // choose a starting coordinate x and y
+
+    // if the direction for the length of that ship is clear and it does not go off the board, then fill in the coordinates 
+
+
 }
 
 void hit_which_ship(int x, int y, struct ship *ships) {
@@ -311,7 +372,7 @@ void practice_game(){
     char **player_visible_grid = grid_maker();
 
     struct ship *all_ships = create_ships();
-    fill_ship_coords(all_ships, computer_grid); //look into this function more --- it seems pretty messy 
+    random_ship_placement(all_ships, computer_grid); //look into this function more --- it seems pretty messy 
 
      while (all_ships_down(all_ships) == 0 && guess_limit != misses) {
         fill_player_guess(computer_grid, all_ships, player_visible_grid, &misses, all_ships, &guess_limit);
@@ -331,17 +392,19 @@ void practice_game(){
 }
 
 void AI_game(){
-    printf("this is AI mode\n");
-
     char **player_grid = grid_maker(); //player's personal grid
-    char **player_visible_grid = grid_maker(); // version of computer grid that player is allowed to see
-    char **computer_grid = grid_maker(); // computer's grid
+
+    char **AI_grid = grid_maker(); // computer's grid
+    char **AI_visible_grid = grid_maker(); // version of computer grid that player is allowed to see
+
 
     struct ship *player_ships = create_ships();
-    struct  ship *enemy_ships = create_ships();
+    struct ship *AI_ships = create_ships();
 
-    //create the AI grid
-    //use the random generator to fill in the AI grid
+    player_ship_placement(player_ships, player_grid);
+    random_ship_placement(AI_ships, AI_grid); //randomly fill the computer's grid
+ 
+
 
     // let player start first
 
