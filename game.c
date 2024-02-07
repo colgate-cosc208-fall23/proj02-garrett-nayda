@@ -147,7 +147,7 @@ struct ship *create_ships() { //creates an array of all 5 ships
     return allShips;
 }
 
-int check_if_grid_clear(char **grid, int row, int col, char dir, int len) {
+int place_ship(char **grid, int row, int col, char dir, int len) {
     int lengthAfterStart = len - 1;
 
     if (grid[row][col] == '-') {
@@ -214,7 +214,7 @@ void random_ship_placement(struct ship *ship_arr, char **grid) {
             ship_arr[i].coords.y = y;
             ship_arr[i].direction = direction;
 
-            if (check_if_grid_clear(grid, x, y, direction, ship_arr[i].length) == 1) {
+            if (place_ship(grid, x, y, direction, ship_arr[i].length) == 1) {
                 filled = 1;
             }
         }
@@ -251,30 +251,16 @@ void player_ship_placement(struct ship* ship_arr, char **grid){
             ship_arr[i].coords.y = col;
             ship_arr[i].direction = direction;
 
-            if (check_if_grid_clear(grid, row, col, direction, len) == 1) {
+            if (place_ship(grid, row, col, direction, len) == 1) {
                 done = 1;
                 printf("%s successfully placed.\n", ship_arr[i].name);
                 printf("\nPlayer grid: \n");
                 print_grid(grid);
             } else {
                 printf("Invalid input/ship collision. Try again. \n\n");
-            }
-            
+            }            
         }
-
-
-
     }
-
-    // int check_if_grid_clear(char **grid, int row, int col, char dir, int len) {
-
-    // choose a direction
-
-    // choose a starting coordinate x and y
-
-    // if the direction for the length of that ship is clear and it does not go off the board, then fill in the coordinates 
-
-
 }
 
 void hit_which_ship(int x, int y, struct ship *ships) {
@@ -349,6 +335,32 @@ void fill_player_guess(char **grid, struct ship *ships, char **playerGrid, int *
     }
 }
 
+void computer_guess(char **player_grid, struct ship *player_ships){ //given a player grid, the computer makes a random guess 
+    int done = 0; // gonna do a while loop until I'm done
+
+    while (done == 0){ //keep guessing
+        int row = rand() % 10; //generate a random x and y in bounds
+        int col = rand() % 10;
+
+        printf("computer guess: row %d, col %d\n", row, col);
+
+        if (player_grid[row][col] == '-'){
+            printf("AI missed\n");
+            done = 1;
+        }
+        else if (player_grid[row][col] == 'O'){
+            printf("Your ship has been hit\n");
+            player_grid[row][col] = 'H';
+            hit_which_ship(row, col, player_ships);
+            printf("grid\n");
+            print_grid(player_grid);
+            done = 1;
+        }
+            
+    }
+
+}
+
 char **grid_maker() { //mallocs and fills a 10x10 grid for graphics and data collection 
     char **grid = malloc(sizeof(char *) * 10); //malloc space for a 10 x 10 2D array
     for (int i = 0; i < 10; i++) { 
@@ -404,9 +416,18 @@ void AI_game(){
     player_ship_placement(player_ships, player_grid);
     random_ship_placement(AI_ships, AI_grid); //randomly fill the computer's grid
  
+    int x = 1;
 
+    while (all_ships_down(player_ships) == 0 && all_ships_down(AI_ships) == 0){
+        //fill_player_guess(); --> need to rework this so that it doesn't include misses / guesses . Can make another function or add it to practice_game function
+        computer_guess(player_grid, player_ships);
+        x ++;
+        //   // player guess 
+    //computer guess
+    }
 
-    // let player start first
+    // player guess
+    //computer guess 
 
     // guess - same as in practice mode
 
