@@ -8,7 +8,9 @@
 #include <time.h>
 #include <string.h>
 #include <ctype.h>
+#include <unistd.h>
 
+// need to fix valgrind, maybe make a down ship turn into Xs?
 #define PRACTICE_MODE 1
 #define AI_MODE 2
 #define ALL_SHIPS 5
@@ -30,23 +32,49 @@ struct ship { //struct with all ship information
 };
 
 void practice_mode_instructions(){
-    printf("practice mode player instructions: \n\n");
+    printf("Practice mode instructions: \n\n");
+    sleep(1);
     printf("   * 5 ships will be randomly placed on the grid: the Carrier (5), the Battleship (4), the Cruiser (3), the Submarine (3), and the Destroyer (2).\n");
-    printf("   * each turn, you will prompted to input a set of coordinates (0,0) <= (x, y) <= (9,9)...\n");
-    printf("   * if you hit a ship, it will be marked with an 'H' for hit.\n");
-    printf("   * a missed guess will be marked with an 'M' for miss.\n");
-    printf("   * if you hit all of the ships within your guess limit, you win. otherwise, you lose.\n\n");
+    sleep(2);
+    printf("   * Each turn, you will prompted to input a row and column (0-9)...\n");
+    sleep(2);
+    printf("   * If you hit a ship, it will be marked with an 'H' for hit.\n");
+    sleep(2);
+    printf("   * A missed guess will be marked with an 'M' for miss.\n");
+    sleep(2);
+    printf("   * If you hit all of the ships within your guess limit, you win. Otherwise, you lose.\n\n");
+    sleep(1);
 }
 
 void AI_instructions(){
-    printf("easy AI player instructions: \n\n");
-    printf("not implemented yet :'(\n");
+    printf("AI mode instructions: \n\n");
+    sleep(1);
+    printf("   * You will be prompted to place 5 ships on the grid: the Carrier (5), the Battleship (4), the Cruiser (3), the Submarine (3), and the Destroyer (2).\n");
+    sleep(2);
+    printf("   * Computer ships will be randomly placed\n");
+    sleep(2);
+    printf("   * You and the computer will take turns guessing where each others ships are\n");
+    sleep(2);
+    printf("   * Each turn, you will prompted to input a row and column (0-9)...\n");
+    sleep(2);
+    printf("   * If you hit a ship, it will be marked with an 'H' for hit.\n");
+    sleep(2);
+    printf("   * A missed guess will be marked with an 'M' for miss.\n");
+    sleep(2);
+    printf("   * If you hit all of the ships before the AI hits yours, you win. Otherwise, you lose.\n\n");
+    sleep(1);
+
+
+    
 }
 
 int game_instructions() { // prints game instructions 
-    printf("\nwelcome to Battleship! (press CTRL C to quit) \n\n");
-    printf("select game mode (press enter/return to continue) \n");
-    printf("   * practice mode: press 1\n");
+    printf("\nWelcome to Battleship! (CTRL C to quit) \n\n");
+    sleep(1);
+    printf("Select game mode (press enter/return to continue) \n");
+    sleep(1);
+    printf("   * Practice mode: press 1\n");
+    sleep(1);
     printf("   * AI: press 2\n\n");
 
     char game_choice;
@@ -220,6 +248,7 @@ void random_ship_placement(struct ship *ship_arr, char **grid) {
         }
     }
 }
+    
 
 void player_ship_placement(struct ship* ship_arr, char **grid){
     printf("places player ships\n");
@@ -234,7 +263,8 @@ void player_ship_placement(struct ship* ship_arr, char **grid){
         ship_arr[i].hits = 0;
         ship_arr[i].ship_sunk = 0; 
 
-    printf("\nFilling %s (length %d): \n", ship_arr[i].name, len);
+        printf("\nFilling %s (length %d): \n", ship_arr[i].name, len);
+        sleep(1);
         while (done == 0) {
             printf("Enter a starting row number (0-9): "); // now get user input on the starting row, column, and direction
             scanf("%d", &row);
@@ -245,6 +275,7 @@ void player_ship_placement(struct ship* ship_arr, char **grid){
 
             printf("Enter a direction -> 'u' (up), 'd' (down), 'l' (left), or 'r' (right): ");
             scanf("%c", &direction);
+            sleep(1);
         
 
             ship_arr[i].coords.x = row; 
@@ -253,15 +284,20 @@ void player_ship_placement(struct ship* ship_arr, char **grid){
 
             if (place_ship(grid, row, col, direction, len) == 1) {
                 done = 1;
-                printf("%s successfully placed.\n", ship_arr[i].name);
+                printf("\n%s successfully placed.\n", ship_arr[i].name);
+                sleep(1);
                 printf("\nPlayer grid: \n");
                 print_grid(grid);
             } else {
+                sleep(1);
                 printf("Invalid input/ship collision. Try again. \n\n");
             }            
         }
     }
+    
+    printf("All ships placed!\nTime to play!\n\n");
 }
+
 
 void hit_which_ship(int x, int y, struct ship *ships) {
     for (int i = 0; i < 5; i++) { // checking each ship
@@ -305,33 +341,48 @@ void hit_which_ship(int x, int y, struct ship *ships) {
     }
 }
 
-void fill_player_guess(char **grid, struct ship *ships, char **playerGrid, int *misses,struct ship *ship_arr, int *guess_limit) {
-    int x;
-    int y;
+char fill_player_guess(char **grid, struct ship *ships, char **playerGrid, struct ship *ship_arr) {
+    int row;
+    int col;
+    int valid = 0;
 
-    printf("Enter a row number (0-9): ");
-    scanf("%d", &x);
+    while (valid == 0){
+        printf("Enter a row number (0-9): ");
+        scanf("%d", &row);
 
-    printf("Enter a column number (0-9): ");
-    scanf("%d", &y);
+        printf("Enter a column number (0-9): ");
+        scanf("%d", &col);
 
-    if ((x < 0 || x > 9) || (y < 0 || y > 9)) {
-        printf("\ninvalid input - enter a number 0-9.\n");
-    } else if (grid[x][y] != '-') {
-        printf("\ncoordinates already guessed - enter a new set of coordinates.\n");
-    } else if (grid[x][y] == 'O') {
-        grid[x][y] = 'H';
-        playerGrid[x][y] = 'H';
-        printf("\nhit at (%d,%d)! marked with an H (Hit)!\n\n", x, y);
-        hit_which_ship(x, y, ships);
-        printf("\nyou have %d ships left to sink.\n\n", ships_left(ship_arr));
-    } else if (grid[x][y] == '-') {
-        grid[x][y] = 'M';
-        playerGrid[x][y] = 'M';
-        printf("\nguess at row %d, column %d was not a hit. marked with an M (miss).\n", x, y);
-        (*misses)++;
-        printf("\nyou have missed %d attempt(s) so far. you have %d misses remaining.\n", *misses, (*guess_limit - *misses));
-        printf("\nyou have %d ships left to sink.\n\n", ships_left(ship_arr));
+
+        if ((row < 0 || row > 9) || (col < 0 || col > 9)) {
+            printf("\ninvalid input - enter a number 0-9.\n");
+        } else if (grid[row][col] != '-' && grid[row][col] != 'O') {
+            printf("\ncoordinates already guessed - enter a new set of coordinates.\n");
+        } else {
+            valid = 1;
+        }
+    } 
+
+    if (grid[row][col] == 'O') {
+        grid[row][col] = 'H';
+        playerGrid[row][col] = 'H';
+        sleep(1);
+        printf("\nGuess at row %d, column %d was a...", row, col);
+         // wanted to put sleep here but doesn't seem to work
+        printf(" hit! marked with an H (hit)\n\n");
+        hit_which_ship(row, col, ships);
+        printf("You have %d ships left to sink.\n\n", ships_left(ship_arr));
+        return 'H';
+    } else if (grid[row][col] == '-') {
+        grid[row][col] = 'M';
+        playerGrid[row][col] = 'M';
+        sleep(1);
+        printf("\nGuess at row %d, column %d was a...", row, col);
+        // wanted to put sleep here but doesn't seem to work
+        printf(" miss! marked with an M (miss)\n\n");
+        return 'M';
+    } else {
+        return 'F';
     }
 }
 
@@ -346,6 +397,7 @@ void computer_guess(char **player_grid, struct ship *player_ships){ //given a pl
 
         if (player_grid[row][col] == '-'){
             printf("AI missed\n");
+            player_grid[row][col] = 'M';
             done = 1;
         }
         else if (player_grid[row][col] == 'O'){
@@ -377,7 +429,10 @@ char **grid_maker() { //mallocs and fills a 10x10 grid for graphics and data col
 void practice_game(){
     int misses = 0; // tracks the number of misses  
     int guess_limit; //practice mode guess limit - user gets to choose how many tries they'd like to get 
-    printf("\nenter a guess limit: ");
+    char hit_or_miss;
+
+    sleep(1);
+    printf("\nEnter a guess limit: ");
     scanf("%d", &guess_limit);
 
     char **computer_grid = grid_maker(); // two grids - one tracks the data and another displays hits to the users 
@@ -386,14 +441,24 @@ void practice_game(){
     struct ship *all_ships = create_ships();
     random_ship_placement(all_ships, computer_grid); //look into this function more --- it seems pretty messy 
 
+    printf("\nTime to play!\n\n");
      while (all_ships_down(all_ships) == 0 && guess_limit != misses) {
-        fill_player_guess(computer_grid, all_ships, player_visible_grid, &misses, all_ships, &guess_limit);
+        sleep(1);
+        hit_or_miss = fill_player_guess(computer_grid, all_ships, player_visible_grid, all_ships);
+        printf("\n");
+        sleep(1);
         print_grid(player_visible_grid);
+        printf("\n");
+        if (hit_or_miss == 'M'){
+            misses++;
+            printf("%d guess(es) remain.\n\n", guess_limit-misses);
+        }
      }
+
      if (guess_limit == misses){
-        printf("\nNo guesses remain! Game over.");
-     }
-     else {
+        printf("You lose! Game over.\n\nEnemy ships: \n\n");
+        print_grid(computer_grid);
+     } else {
         printf("\nYou have successfully sunk all enemy ships! You win.");
      }
 
@@ -402,6 +467,7 @@ void practice_game(){
     free_grid(computer_grid);
     free_ships(all_ships);
 }
+
 
 void AI_game(){
     char **player_grid = grid_maker(); //player's personal grid
@@ -416,12 +482,14 @@ void AI_game(){
     player_ship_placement(player_ships, player_grid);
     random_ship_placement(AI_ships, AI_grid); //randomly fill the computer's grid
  
-    int x = 1;
-
+   
     while (all_ships_down(player_ships) == 0 && all_ships_down(AI_ships) == 0){
-        //fill_player_guess(); --> need to rework this so that it doesn't include misses / guesses . Can make another function or add it to practice_game function
+        fill_player_guess(AI_grid, AI_ships, AI_visible_grid, AI_ships);
+        print_grid(AI_visible_grid);
+        sleep(3);
         computer_guess(player_grid, player_ships);
-        x ++;
+        print_grid(player_grid);
+
         //   // player guess 
     //computer guess
     }
@@ -441,7 +509,7 @@ void AI_game(){
 
 void play_game() { //highest level function: runs the entirety of the game
     int mode = game_instructions();
-    printf("press return to continue "); 
+    printf("Press enter/return to continue "); 
 
     int c; 
     while ((c = getchar()) != '\n');
